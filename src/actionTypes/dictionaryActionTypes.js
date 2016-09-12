@@ -1,0 +1,3 @@
+export const ADD_WORD = 'ADD_WORD';
+export const ADD_WORD_SUCCEEDED = 'ADD_WORD_SUCCEEDED';
+export const ADD_WORD_FAILED = 'ADD_WORD_FAILED';
