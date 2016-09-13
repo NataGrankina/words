@@ -1,20 +1,12 @@
 var express = require("express");
 var app = express();
-var bodyParser = require("body-parser");
+const cors = require('cors');
 var request = require('request');
 var router = express.Router();
 
 var baseUrl = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20160913T074645Z.c94dd581a6014da9.c28247d7a5ade7a0e6d133568c58b33539a7888b&lang=en-ru&text=';
 
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({"extended" : false}));
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    next();
-});
+app.use(cors());
 
 router.route("/translate/:word")
     .get(function(req, res) {
