@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as actions from '../actions/translatorActions';
+import DebounceInput from 'react-debounce-input';
 
 class App extends React.Component {
     loadTranslations(event) {
@@ -10,7 +11,9 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <input onChange={this.loadTranslations.bind(this)}/>
+                <DebounceInput
+                    debounceTimeout={500}
+                    onChange={this.loadTranslations.bind(this)}/>
                 <div>Translations for {this.props.word} are: </div>
                 <ol>
                     {this.props.translations.map(tr => (

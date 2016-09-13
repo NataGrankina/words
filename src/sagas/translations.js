@@ -5,8 +5,12 @@ import translate from '../api/translator';
 
 function* loadTranslations({word}) {
     try {
-        const translations = yield call(translate, word);
-        yield put({type: actionTypes.LOAD_TRANSLATIONS_SUCCEEDED, translations, word})
+        if (!word) {
+            yield put({type: actionTypes.LOAD_TRANSLATIONS_SUCCEEDED, translations: [], word})
+        } else {
+            const translations = yield call(translate, word);
+            yield put({type: actionTypes.LOAD_TRANSLATIONS_SUCCEEDED, translations, word})
+        }
     } catch (error) {
         yield put({type: actionTypes.LOAD_TRANSLATIONS_FAILED, error})
     }
