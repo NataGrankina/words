@@ -13,7 +13,14 @@ class App extends React.Component {
                 <input onChange={this.loadTranslations.bind(this)}/>
                 <div>Translations for {this.props.word} are: </div>
                 <ol>
-                    {this.props.translations.map(tr => (<div key={tr}>{tr}</div>))}
+                    {this.props.translations.map(tr => (
+                        <div key={tr.pos}>
+                            <div>{tr.pos.toUpperCase()}</div>
+                            {tr.tr.map(t =>
+                                (<div key={t.text}>{t.text}</div>)
+                            )}
+                        </div>
+                    ))}
                 </ol>
             </div>
         );

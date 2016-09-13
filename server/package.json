@@ -1,0 +1,15 @@
+{
+  "name": "words-rest-api",
+  "version": "1.0.0",
+  "description": "Rest api for Words app",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Natalia Grankina",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mongoose": "^4.6.0",
+    "request": "^2.74.0"
+  }
+}
