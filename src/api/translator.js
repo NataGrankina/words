@@ -1,15 +1,18 @@
 import $ from 'jquery';
+import {getToken} from './auth';
 
 export default function getTranslations(word) {
     return makeAjaxRequest(
         'http://localhost:3000/translate/' + word,
         'GET',
-        null);
+        null,
+        true);
 }
 
-function makeAjaxRequest(url, type, data) {
+function makeAjaxRequest(url, type, data, isAuthenticatedRequest) {
     return new Promise(function (resolve, reject) {
-        $.ajax({
+        const token = getToken();
+        let config = {
             type: type,
             data: data,
             contentType: 'application/json',
@@ -26,6 +29,15 @@ function makeAjaxRequest(url, type, data) {
             error: function (request, textStatus, errorThrown) {
                 reject(errorThrown);
             }
-        });
+        };
+        if(isAuthenticatedRequest) {
+            if(token) {
+                config.headers = { 'Authorization': `Bearer ${token}` }
+            } else {
+                throw new Error("No token saved!")
+            }
+        }
+
+        $.ajax(config);
     });
 }

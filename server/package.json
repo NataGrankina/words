@@ -10,7 +10,10 @@
     "body-parser": "^1.15.2",
     "cors": "^2.8.1",
     "express": "^4.14.0",
+    "express-jwt": "^5.0.0",
+    "fs": "0.0.1-security",
     "mongoose": "^4.6.0",
+    "node-env-file": "^0.1.8",
     "request": "^2.74.0"
   }
 }

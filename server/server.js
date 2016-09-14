@@ -1,15 +1,30 @@
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
 const cors = require('cors');
-var request = require('request');
-var router = express.Router();
+const request = require('request');
+const jwt = require('express-jwt');
+const router = express.Router();
+const fs = require('fs');
+const env = require('node-env-file');
 
-var baseUrl = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20160913T074645Z.c94dd581a6014da9.c28247d7a5ade7a0e6d133568c58b33539a7888b&lang=en-ru&text=';
+if (fs.existsSync(__dirname + '/.env' )) {
+    env(__dirname + '/.env')
+}
 
+const baseUrl = `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${process.env.YANDEX_VOCABULARY_API_KEY}&lang=en-ru&text=`;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({"extended" : false}));
 app.use(cors());
 
+const authCheck = jwt({
+    secret: new Buffer(process.env.AUTH0_SECRET, 'base64'),
+    audience: process.env.AUTH0_CLIENT_ID
+});
+
 router.route("/translate/:word")
-    .get(function(req, res) {
+    .get(authCheck, function(req, res) {
         var response = {};
 
         request(baseUrl + req.params.word, function (error, response, body) {

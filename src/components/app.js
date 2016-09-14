@@ -1,39 +1,74 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import * as actions from '../actions/translatorActions';
+import * as authActions from '../actions/authActions';
 import DebounceInput from 'react-debounce-input';
+import Auth from './auth';
 
-class App extends React.Component {
+class App extends Component {
     loadTranslations(event) {
         const {value} = event.target;
         this.props.dispatch(actions.loadTranslations(value));
     }
     render() {
+        const {
+            isAuthenticated,
+            profile,
+            error,
+            word,
+            translations,
+            dispatch
+        } = this.props;
+
         return (
             <div>
-                <DebounceInput
-                    debounceTimeout={500}
-                    onChange={this.loadTranslations.bind(this)}/>
-                <div>Translations for {this.props.word} are: </div>
-                <ol>
-                    {this.props.translations.map(tr => (
-                        <div key={tr.pos}>
-                            <div>{tr.pos.toUpperCase()}</div>
-                            {tr.tr.map(t =>
-                                (<div key={t.text}>{t.text}</div>)
-                            )}
+                <div className="navbar navbar-default">
+                    <div className="container-fluid">
+                        <Auth
+                            isAuthenticated={isAuthenticated}
+                            profile={profile}
+                            onLoginClick={() => dispatch(authActions.login())}
+                            onLogoutClick={() => dispatch(authActions.logout())}
+                        />
+                    </div>
+                </div>
+                {isAuthenticated
+                    ? <div className="container-fluid">
+                        <div>
+                            <DebounceInput
+                                debounceTimeout={500}
+                                onChange={this.loadTranslations.bind(this)}/>
+                            <div>Translations for {word} are:</div>
+                            <ol>
+                                {translations.map(tr => (
+                                    <div key={tr.pos}>
+                                        <div>{tr.pos.toUpperCase()}</div>
+                                        {tr.tr.map(t =>
+                                            (<div key={t.text}>{t.text}</div>)
+                                        )}
+                                    </div>
+                                ))}
+                            </ol>
                         </div>
-                    ))}
-                </ol>
+                     </div>
+                    : null
+                }
             </div>
         );
     }
 }
 
 function mapStateToProps(state) {
+    const {translator, auth} = state;
+    const {isAuthenticated, profile, error} = auth;
+    const {word, translations} = translator;
+
     return {
-        word: state.translator.word,
-        translations: state.translator.translations
+        isAuthenticated,
+        profile,
+        error,
+        word,
+        translations
     };
 }
 
