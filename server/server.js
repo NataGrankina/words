@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
@@ -7,6 +9,7 @@ const jwt = require('express-jwt');
 const router = express.Router();
 const fs = require('fs');
 const env = require('node-env-file');
+const userModel = require('./models/user');
 
 if (fs.existsSync(__dirname + '/.env' )) {
     env(__dirname + '/.env')
@@ -23,11 +26,60 @@ const authCheck = jwt({
     audience: process.env.AUTH0_CLIENT_ID
 });
 
-router.route("/translate/:word")
-    .get(authCheck, function(req, res) {
-        var response = {};
+function getToken(req) {
+    return req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer'
+        ? req.headers.authorization.split(' ')[1]
+        : null;
+}
+function getAuth0User(jwtToken) {
+    return new Promise((resolve, reject) => {
+        request({
+            url:'https://words.eu.auth0.com/tokeninfo',
+            method: 'POST',
+            json: {
+                id_token: jwtToken,
+            }
+        }, (error, response, body) => {
+            if(error) {
+                reject(error);
+            } else {
+                resolve(body);
+            }
+        });
+    });
+}
 
-        request(baseUrl + req.params.word, function (error, response, body) {
+router.route("/authorize")
+    .post(authCheck, (req, res) => {
+        let response = {};
+        getAuth0User(getToken(req))
+            .then(user => {
+                userModel.update(
+                    {id: user.user_id},
+                    {$setOnInsert: {id: user.user_id, email: user.email}},
+                    {upsert: true},
+                    err => {
+                        if (err) {
+                            response = {
+                                "error": true,
+                                "message": "Error authorizing user"
+                            };
+                        } else {
+                            response = {
+                                "error": false,
+                                "message": "User is authorized"
+                            }
+                        }
+                        res.json(response);
+                    }
+                );
+            });
+    });
+router.route("/translate/:word")
+    .get(authCheck, (req, res) => {
+        let response = {};
+
+        request(baseUrl + req.params.word, (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 var data = JSON.parse(body);
                 response = {

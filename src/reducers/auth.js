@@ -1,5 +1,5 @@
 import * as actionTypes from '../actionTypes/authActionTypes';
-import {checkTokenExpiry, getToken, getProfile} from '../api/auth';
+import {checkTokenExpiry, getToken, getProfile} from '../api/auth0';
 
 const initialState = {
     isAuthenticated: checkTokenExpiry(),
