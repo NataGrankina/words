@@ -1,4 +1,5 @@
 import * as actionTypes from '../actionTypes/translatorActionTypes';
+import * as authActionTypes from '../actionTypes/authActionTypes';
 
 const initialState = {
     word: '',
@@ -14,6 +15,11 @@ export default (state = initialState, action = {}) => {
                 ...state,
                 translations: action.translations,
                 word: action.word
+            };
+        case authActionTypes.LOGIN_SUCCEEDED:
+        case authActionTypes.LOGOUT_SUCCEEDED:
+            return {
+                ...initialState
             };
         default:
             return state;

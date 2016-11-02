@@ -1,0 +1,22 @@
+.navBarItem {
+    position: relative;
+    float: left;
+}
+
+.pullRight {
+    float: right;
+}
+
+.navBarItemLink {
+    color: white;
+    display: block;
+    text-align: center;
+    padding: 0 15px;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 90px;
+}
+
+.navBarItemLink:hover {
+    background-color: #111;
+}

@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import * as actions from '../actions/translatorActions';
 import * as authActions from '../actions/authActions';
 import DebounceInput from 'react-debounce-input';
-import Auth from './auth';
+import Header from './header/header';
 
 class App extends Component {
     loadTranslations(event) {
@@ -22,18 +22,13 @@ class App extends Component {
 
         return (
             <div>
-                <div className="navbar navbar-default">
-                    <div className="container-fluid">
-                        <Auth
-                            isAuthenticated={isAuthenticated}
-                            profile={profile}
-                            onLoginClick={() => dispatch(authActions.login())}
-                            onLogoutClick={() => dispatch(authActions.logout())}
-                        />
-                    </div>
-                </div>
+                <Header
+                    isAuthenticated={isAuthenticated}
+                    profile={profile}
+                    onLoginClick={() => dispatch(authActions.login())}
+                    onLogoutClick={() => dispatch(authActions.logout())} />
                 {isAuthenticated
-                    ? <div className="container-fluid">
+                    ? <div style={{marginTop: 100}}>
                         <div>
                             <DebounceInput
                                 debounceTimeout={500}
