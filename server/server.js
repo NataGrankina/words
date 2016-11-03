@@ -10,6 +10,11 @@ const router = express.Router();
 const fs = require('fs');
 const env = require('node-env-file');
 const userModel = require('./models/user');
+const translationModel = require('./models/translation');
+const wordModel = require('./models/word');
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/words');
 
 if (fs.existsSync(__dirname + '/.env' )) {
     env(__dirname + '/.env')
@@ -37,7 +42,7 @@ function getAuth0User(jwtToken) {
             url:'https://words.eu.auth0.com/tokeninfo',
             method: 'POST',
             json: {
-                id_token: jwtToken,
+                id_token: jwtToken
             }
         }, (error, response, body) => {
             if(error) {
@@ -47,6 +52,92 @@ function getAuth0User(jwtToken) {
             }
         });
     });
+}
+function extractUserFromRequest(req) {
+  return new Promise((resolve, reject) => {
+    getAuth0User(getToken(req))
+      .then(user => {
+        userModel.findOne({id: user.user_id}, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+  });
+}
+function extractOrCreateWord(word, language) {
+  return new Promise((resolve, reject) => {
+    wordModel.findOneAndUpdate(
+      {word: word, language: language},
+      {$setOnInsert: {word: word, language: language}},
+      {upsert: true, new: true},
+      (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      }
+    );
+  });
+}
+function extractOrCreateTranslation(wordId, language, translation) {
+  return new Promise((resolve, reject) => {
+    translationModel.findOneAndUpdate(
+      {word: wordId, language, translation},
+      {$setOnInsert: {word: wordId, language, translation}},
+      {upsert: true, new: true},
+      (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      }
+    );
+  });
+}
+function extractUserTranslations(user) {
+  return new Promise((resolve, reject) => {
+    if (!user.translations.length) {
+      resolve([]);
+    } else {
+      userModel.findOne({id: user.id})
+        .populate('translations')
+        .exec((err, populatedUser) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(populatedUser.translations);
+          }
+        });
+    }
+  });
+}
+function populateTranslationWords(translations) {
+  return new Promise((resolve, reject) => {
+    const promises = [];
+    for (let i = 0; i < translations.length; i++) {
+      promises.push(new Promise((res, rej) => {
+          translationModel.findById(translations[i]._id)
+            .populate('word')
+            .exec((err, populatedTranslation) => {
+              if (err) {
+                rej(err);
+                console.log(err);
+              } else {
+                res(populatedTranslation);
+              }
+            });
+        }
+      ));
+    }
+    Promise.all(promises)
+      .then(resolve)
+      .catch(reject);
+  });
 }
 
 router.route("/authorize")
@@ -96,6 +187,51 @@ router.route("/translate/:word")
             res.json(response);
         });
     });
+router.route("/translations")
+  .get(authCheck, (req, res) => {
+    extractUserFromRequest(req)
+      .then(extractUserTranslations)
+      .then(populateTranslationWords)
+      .then(translations => {
+        res.json({
+          error: false,
+          translations
+        });
+      })
+      .catch(error => {
+        res.json({
+          error: true,
+          message: error
+        });
+      });
+  })
+  .post(authCheck, (req, res) => {
+    let response = {};
+    Promise.all(
+      [extractOrCreateWord(req.body.word, req.body.languageFrom)
+          .then(word => extractOrCreateTranslation(word._id, req.body.languageTo, req.body.translation)),
+        extractUserFromRequest(req)
+      ]).then(arr => {
+        const transl = arr[0];
+        const user = arr[1];
+        user.translations.push(transl);
+        user.save(err => {
+          if (err) {
+            response = {
+              error: true,
+              message: 'Error adding data'
+            };
+          } else {
+            response = {
+              error : false,
+              data : transl
+            };
+          }
+          res.json(response);
+        });
+      })
+      .catch(err => res.json({error: true, message: err}));
+  });
 
 app.use('/', router);
 

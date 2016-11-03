@@ -5,16 +5,15 @@ import styles from './header.css';
 export default class Header extends Component {
   renderNavHeader() {
     const { isAuthenticated, profile } = this.props;
-    const { picture, nickname } = profile;
 
     return (
       isAuthenticated
         ? <NavBarHeader>
           <NavBarHeaderItem>
-            <img src={picture} role="presentation" className={styles.avatar} />
+            <img src={profile.picture} role="presentation" className={styles.avatar} />
           </NavBarHeaderItem>
           <NavBarHeaderItem>
-            {nickname}
+            {profile.nickname}
           </NavBarHeaderItem>
         </NavBarHeader>
           : <NavBarHeader>
