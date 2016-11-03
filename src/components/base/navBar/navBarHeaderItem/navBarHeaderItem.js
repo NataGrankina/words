@@ -1,14 +1,12 @@
-import React, {Component, PropTypes} from 'react';
+import React from 'react';
 import styles from './navBarHeaderItem.css';
 
-export default class NavBarHeaderItem extends Component {
-    render() {
-        return (
-            <li className={styles.navBarHeaderItem}>
-                <a className={styles.navBarHeaderItemLink}>
-                    {this.props.children}
-                </a>
-            </li>
-        );
-    }
+export default function NavBarHeaderItem(props) {
+  return (
+    <li className={styles.navBarHeaderItem}>
+      <a className={styles.navBarHeaderItemLink}>
+        {props.children}
+      </a>
+    </li>
+  );
 }

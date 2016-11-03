@@ -1,13 +1,11 @@
-import React, {Component, PropTypes} from 'react';
+import React from 'react';
 import styles from './navBarHeader.css';
 
-export default class NavBarHeader extends Component {
-    render() {
-        return (
-            <ul className={styles.navBarHeader}>
-                {this.props.children}
-            </ul>
-        );
-    }
+export default function NavBarHeader(props) {
+  return (
+    <ul className={styles.navBarHeader}>
+      {props.children}
+    </ul>
+  );
 }
 
