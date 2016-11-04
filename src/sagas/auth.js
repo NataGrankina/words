@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 import { take, fork, call, put } from 'redux-saga/effects';
 import { auth0login, auth0logout } from '../api/auth0';
 import authorize from '../api/auth';

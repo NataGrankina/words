@@ -1,28 +1,26 @@
+/* eslint-disable class-methods-use-this */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DebounceInput from 'react-debounce-input';
-import * as actions from '../actions/translatorActions';
 import * as authActions from '../actions/authActions';
 import Header from './header/header';
+import Translator from './translator/translator';
+import Dictionary from './dictionary/dictionary';
+import styles from './app.css';
 
 class App extends Component {
-  constructor() {
-    super();
-
-    this.loadTranslations = this.loadTranslations.bind(this);
-  }
-
-  loadTranslations(event) {
-    const { value } = event.target;
-    this.props.dispatch(actions.loadTranslations(value));
+  renderApp() {
+    return (
+      <div className={styles.container}>
+        <div className={styles.translator}><Translator /></div>
+        <div className={styles.dictionary}><Dictionary /></div>
+      </div>
+    );
   }
 
   render() {
     const {
       isAuthenticated,
       profile,
-      word,
-      translations,
       dispatch
     } = this.props;
 
@@ -35,25 +33,7 @@ class App extends Component {
           onLogoutClick={() => dispatch(authActions.logout())}
         />
         {isAuthenticated
-          ? <div style={{ marginTop: 100 }}>
-            <div>
-              <DebounceInput
-                debounceTimeout={500}
-                onChange={this.loadTranslations}
-              />
-              <div>Translations for {word} are:</div>
-              <ol>
-                {translations.map(tr => (
-                  <div key={tr.pos}>
-                    <div>{tr.pos.toUpperCase()}</div>
-                    {tr.tr.map(t =>
-                      (<div key={t.text}>{t.text}</div>)
-                    )}
-                  </div>
-                ))}
-              </ol>
-            </div>
-          </div>
+          ? this.renderApp()
           : null
         }
       </div>
@@ -62,16 +42,12 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  const { translator, auth } = state;
+  const { auth } = state;
   const { isAuthenticated, profile, error } = auth;
-  const { word, translations } = translator;
-
   return {
     isAuthenticated,
     profile,
-    error,
-    word,
-    translations
+    error
   };
 }
 

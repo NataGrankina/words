@@ -1,0 +1,12 @@
+.container {
+  margin-top: 100px;
+  display: flex;
+}
+.translator {
+  flex: 1;
+  padding: 0 20px;
+}
+.dictionary {
+  flex: 1;
+  padding: 0 20px;
+}
