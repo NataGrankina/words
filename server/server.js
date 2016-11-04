@@ -13,6 +13,7 @@ const userModel = require('./models/user');
 const translationModel = require('./models/translation');
 const wordModel = require('./models/word');
 const mongoose = require('mongoose');
+const _ = require('lodash');
 
 mongoose.connect('mongodb://localhost/words');
 
@@ -126,7 +127,6 @@ function populateTranslationWords(translations) {
             .exec((err, populatedTranslation) => {
               if (err) {
                 rej(err);
-                console.log(err);
               } else {
                 res(populatedTranslation);
               }
@@ -195,7 +195,7 @@ router.route("/translations")
       .then(translations => {
         res.json({
           error: false,
-          translations
+          data: translations
         });
       })
       .catch(error => {
@@ -209,12 +209,15 @@ router.route("/translations")
     let response = {};
     Promise.all(
       [extractOrCreateWord(req.body.word, req.body.languageFrom)
-          .then(word => extractOrCreateTranslation(word._id, req.body.languageTo, req.body.translation)),
+          .then(word =>
+            extractOrCreateTranslation(word._id, req.body.languageTo, req.body.translation)),
         extractUserFromRequest(req)
       ]).then(arr => {
         const transl = arr[0];
         const user = arr[1];
-        user.translations.push(transl);
+        if (!_.some(user.translations, transl._id)) {
+          user.translations.push(transl);
+        }
         user.save(err => {
           if (err) {
             response = {
@@ -223,8 +226,8 @@ router.route("/translations")
             };
           } else {
             response = {
-              error : false,
-              data : transl
+              error: false,
+              data: transl
             };
           }
           res.json(response);
