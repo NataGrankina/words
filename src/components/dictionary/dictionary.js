@@ -15,7 +15,7 @@ class Dictionary extends Component {
         <div>Dictionary</div>
         <ol>
           {translations.map(tr => (
-            <div key={tr.id}>{tr.word.word} - {tr.translation}</div>
+            <div key={tr._id}>{tr.word.word} - {tr.translation}</div>
           ))}
         </ol>
       </div>
